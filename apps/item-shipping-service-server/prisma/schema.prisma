@@ -1,0 +1,79 @@
+datasource db {
+  provider = "postgresql"
+  url      = env("DB_URL")
+}
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+model Item {
+  id          String   @id @default(cuid())
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  name        String?
+  description String?
+  price       Float?
+  dimensions  String?
+  weight      Float?
+  category    String?
+  orders      Order[]
+  reviews     Review[]
+}
+
+model Order {
+  id          String     @id @default(cuid())
+  createdAt   DateTime   @default(now())
+  updatedAt   DateTime   @updatedAt
+  orderDate   DateTime?
+  orderNumber String?
+  status      String?
+  totalPrice  Float?
+  user        User?      @relation(fields: [userId], references: [id])
+  userId      String?
+  item        Item?      @relation(fields: [itemId], references: [id])
+  itemId      String?
+  shipments   Shipment[]
+}
+
+model Shipment {
+  id                   String    @id @default(cuid())
+  createdAt            DateTime  @default(now())
+  updatedAt            DateTime  @updatedAt
+  shipmentNumber       String?
+  trackingNumber       String?
+  shipmentDate         DateTime?
+  expectedDeliveryDate DateTime?
+  status               String?
+  order                Order?    @relation(fields: [orderId], references: [id])
+  orderId              String?
+}
+
+model Review {
+  id        String   @id @default(cuid())
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  rating    Int?
+  comment   String?
+  item      Item?    @relation(fields: [itemId], references: [id])
+  itemId    String?
+  user      User?    @relation(fields: [userId], references: [id])
+  userId    String?
+}
+
+model User {
+  id          String   @id @default(cuid())
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  firstName   String?
+  lastName    String?
+  username    String   @unique
+  email       String?  @unique
+  password    String
+  roles       Json
+  name        String?
+  address     String?
+  phoneNumber String?
+  orders      Order[]
+  reviews     Review[]
+}
